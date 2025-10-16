@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import Confetti from "react-confetti";
 import CanvasConfetti from "react-canvas-confetti";
 import mojs from "@mojs/core";
+import Lenis from "@studio-freight/lenis";
 import "@fontsource/orbitron";
 
 export default function Final() {
@@ -20,14 +21,74 @@ export default function Final() {
 
   const [cursor, setCursor] = useState({ x: -100, y: -100 });
   const [sparks, setSparks] = useState([]);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
-  const title = "WELCOME TO FLUX";
   const subtitle = "Selected Candidates";
-  const members = Array.from({ length: 30 }).map((_, i) => `Member ${i + 1}`);
+
+  const members = [
+    "Disha Nathani",
+    "Aashutosh Singh Baghel",
+    "Vasudev Dhakad",
+    "Nisha Singh",
+    "Muskan Sahu",
+    "Radhika Shrivastava",
+    "Utkarsh Vishwakarma",
+    "Krishnesh Patel",
+    "Shivangi Soni",
+    "Som Singh Thakur",
+    "Ayush Garg",
+    "Hardik Kumar Sinha",
+    "Kundan Patidar",
+    "Aashay Binjwe",
+    "Deepak Sahu",
+    "Pramit Singh",
+    "Prakhar Sharma",
+    "Anshika Shukla",
+    "Aastha Tiwari",
+    "Rohan Singh",
+    "Mrinal Rangare",
+    "Arunendra Singh",
+    "Devanshu Vishwakarma",
+    "Sneha Yadav",
+    "Anamika Soni",
+    "Yukti Choudhary",
+    "Prathamesh Mohankar",
+    "Ravi Chouksey",
+    "Sarvagya Jain",
+    "Riddhi Agrawal",
+    "Somil Jain",
+    "Safal Tiwari",
+    "Priyansh Mishra",
+    "Pragati Dange",
+    "Harshit Dubey",
+    "Deepak Kumar Gupta",
+    "Aryan Chourasia",
+    "Dhananjay Rawat",
+    "Devansh Patel",
+    "Nitin Khasdeo",
+  ];
 
   const fireworkSound = useRef(new Audio("/firework.mp3"));
 
-  // Update dimensions on resize and scroll
+  // 🌀 Initialize Lenis Smooth Scroll
+  useEffect(() => {
+    const lenis = new Lenis({
+      duration: 1.2,
+      smooth: true,
+      smoothTouch: true,
+      touchMultiplier: 2,
+    });
+
+    function raf(time) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
+
+    requestAnimationFrame(raf);
+    return () => lenis.destroy();
+  }, []);
+
+  // Responsive listener
   useEffect(() => {
     const updateDimensions = () => {
       setDimensions({
@@ -38,10 +99,11 @@ export default function Final() {
           window.innerHeight
         ),
       });
+      setIsMobile(window.innerWidth < 768);
     };
 
     window.addEventListener("resize", updateDimensions);
-    window.addEventListener("scroll", updateDimensions); // <- Added scroll listener
+    window.addEventListener("scroll", updateDimensions);
     updateDimensions();
 
     return () => {
@@ -50,16 +112,15 @@ export default function Final() {
     };
   }, []);
 
-  // Confetti bursts from top, left, and right
+  // Confetti effect
   useEffect(() => {
     const interval = setInterval(() => {
       if (confettiInstance.current) {
         const origins = [
-          { x: Math.random(), y: Math.random() * 0.5 }, // top
-          { x: 0, y: Math.random() * 0.8 },             // left
-          { x: 1, y: Math.random() * 0.8 },             // right
+          { x: Math.random(), y: Math.random() * 0.5 },
+          { x: 0, y: Math.random() * 0.8 },
+          { x: 1, y: Math.random() * 0.8 },
         ];
-
         origins.forEach((origin) => {
           confettiInstance.current({
             particleCount: 25,
@@ -70,14 +131,13 @@ export default function Final() {
             colors: ["#ff0000", "#ffcc00", "#ff8800", "#ff5555", "#ff3300"],
           });
         });
-
         fireworkSound.current.play();
       }
     }, 2000);
     return () => clearInterval(interval);
   }, []);
 
-  // Mouse sparkle effect
+  // Cursor sparkle
   useEffect(() => {
     const handleMouseMove = (e) => {
       setCursor({ x: e.clientX, y: e.clientY });
@@ -85,7 +145,9 @@ export default function Final() {
         x: e.clientX + (Math.random() - 0.5) * 40,
         y: e.clientY + (Math.random() - 0.5) * 40,
         size: Math.random() * 8 + 4,
-        color: ["#ff0000", "#ffcc00", "#ff8800", "#ff5555", "#ff3300"][Math.floor(Math.random() * 5)],
+        color: ["#ff0000", "#ffcc00", "#ff8800", "#ff5555", "#ff3300"][
+          Math.floor(Math.random() * 5)
+        ],
         life: 0,
       };
       setSparks((prev) => [...prev, newSpark]);
@@ -94,7 +156,7 @@ export default function Final() {
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
-  // Spark animation
+  // Spark decay
   useEffect(() => {
     const interval = setInterval(() => {
       setSparks((prev) =>
@@ -106,8 +168,6 @@ export default function Final() {
     return () => clearInterval(interval);
   }, []);
 
-  const letters = title.split("");
-
   const letterVariants = {
     hidden: { y: 50, opacity: 0, rotate: -10, scale: 0.8 },
     visible: (i) => ({
@@ -115,7 +175,12 @@ export default function Final() {
       opacity: 1,
       rotate: 0,
       scale: 1,
-      transition: { delay: i * 0.05, type: "spring", stiffness: 500, damping: 20 },
+      transition: {
+        delay: i * 0.05,
+        type: "spring",
+        stiffness: 500,
+        damping: 20,
+      },
     }),
   };
 
@@ -126,25 +191,29 @@ export default function Final() {
 
   const cardVariants = {
     hidden: { opacity: 0, y: 50 },
-    visible: (i) => ({ opacity: 1, y: 0, transition: { duration: 0.5, delay: i * 0.1 } }),
+    visible: (i) => ({
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.5, delay: i * 0.1 },
+    }),
   };
 
-  // Fireworks on click
+  // 🎆 Firework animation (desktop only)
   useEffect(() => {
-    const colors = ["#ff0000", "#ffcc00", "#ff8800"];
+    if (isMobile) return;
 
+    const colors = ["#ff0000", "#ffcc00", "#ff8800"];
     const handleClick = (e) => {
       const posX = e.clientX;
       const posY = e.clientY;
-
-      const centerMarginX = window.innerWidth * 0.2;
-      const centerMarginY = window.innerHeight * 0.2;
+      const marginX = window.innerWidth * 0.2;
+      const marginY = window.innerHeight * 0.2;
 
       if (
-        posX > centerMarginX &&
-        posX < window.innerWidth - centerMarginX &&
-        posY > centerMarginY &&
-        posY < window.innerHeight - centerMarginY
+        posX > marginX &&
+        posX < window.innerWidth - marginX &&
+        posY > marginY &&
+        posY < window.innerHeight - marginY
       ) {
         new mojs.Burst({
           left: 0,
@@ -188,11 +257,10 @@ export default function Final() {
 
     window.addEventListener("click", handleClick);
     return () => window.removeEventListener("click", handleClick);
-  }, []);
+  }, [isMobile]);
 
   return (
     <div className="relative w-full min-h-screen flex flex-col items-center pt-16 bg-black text-red-400 overflow-hidden font-['Orbitron'] cursor-none">
-      {/* Confetti */}
       <Confetti
         width={dimensions.width}
         height={dimensions.height}
@@ -206,10 +274,17 @@ export default function Final() {
 
       <CanvasConfetti
         ref={getInstance}
-        style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 0 }}
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          pointerEvents: "none",
+          zIndex: 0,
+        }}
       />
 
-      {/* Title & Subtitle */}
       <div className="relative z-10 w-full py-8 flex flex-col items-center">
         <h1 className="text-center mb-6 px-4 drop-shadow-[0_0_55px_#ff0000] flex flex-col items-center">
           <motion.span
@@ -242,8 +317,8 @@ export default function Final() {
         </motion.h2>
       </div>
 
-      {/* Members Grid */}
-      <div className="relative z-10 flex flex-wrap justify-center w-full max-w-6xl gap-6 px-4 mt-6">
+      {/* Members */}
+      <div className="relative z-10 flex flex-wrap justify-center w-full max-w-6xl gap-4 sm:gap-6 px-4 mt-6">
         {members.map((name, i) => (
           <motion.div
             key={i}
@@ -252,56 +327,58 @@ export default function Final() {
             animate="visible"
             variants={cardVariants}
             whileHover={{ scale: 1.1, boxShadow: "0 0 25px #ff5555" }}
-            className="px-4 py-2 w-44 sm:w-48 bg-black/40 border border-red-500 rounded-lg backdrop-blur-md shadow-[0_0_25px_rgba(255,0,0,0.6)] text-center transition-all duration-300"
+            className="px-3 py-2 w-[42%] sm:w-48 bg-black/40 border border-red-500 rounded-lg backdrop-blur-md shadow-[0_0_25px_rgba(255,0,0,0.6)] text-center transition-all duration-300"
           >
-            <div className="text-sm md:text-base font-bold text-red-100">{name}</div>
+            <div className="text-xs sm:text-base font-bold text-red-100">
+              {name}
+            </div>
           </motion.div>
         ))}
       </div>
 
-      {/* Footer */}
       <footer className="relative z-10 text-[9px] md:text-xs text-red-500/70 font-mono text-center pb-4 px-2 mt-12">
         🎆 Developed by <span className="text-red-400">Introvert</span>
       </footer>
 
-      {/* Custom Cursor */}
-      <div
-        style={{
-          position: "fixed",
-          top: cursor.y,
-          left: cursor.x,
-          width: 40,
-          height: 40,
-          borderRadius: "50%",
-          background: "radial-gradient(circle, #ff0000, #ff8800)",
-          pointerEvents: "none",
-          transform: "translate(-50%, -50%)",
-          zIndex: 9999,
-          boxShadow: "0 0 25px #ff5555, 0 0 35px #ff8800",
-        }}
-      />
+      {/* Cursor */}
+      {!isMobile && (
+        <>
+          <div
+            style={{
+              position: "fixed",
+              top: cursor.y,
+              left: cursor.x,
+              width: 40,
+              height: 40,
+              borderRadius: "50%",
+              background: "radial-gradient(circle, #ff0000, #ff8800)",
+              pointerEvents: "none",
+              transform: "translate(-50%, -50%)",
+              zIndex: 9999,
+              boxShadow: "0 0 25px #ff5555, 0 0 35px #ff8800",
+            }}
+          />
+          {sparks.map((spark, index) => (
+            <div
+              key={index}
+              style={{
+                position: "fixed",
+                top: spark.y,
+                left: spark.x,
+                width: spark.size * 2,
+                height: spark.size * 2,
+                borderRadius: "50%",
+                backgroundColor: spark.color,
+                pointerEvents: "none",
+                opacity: 1 - spark.life / 40,
+                filter: "blur(2px)",
+                zIndex: 9999,
+              }}
+            />
+          ))}
+        </>
+      )}
 
-      {/* Cursor Sparks */}
-      {sparks.map((spark, index) => (
-        <div
-          key={index}
-          style={{
-            position: "fixed",
-            top: spark.y,
-            left: spark.x,
-            width: spark.size * 2,
-            height: spark.size * 2,
-            borderRadius: "50%",
-            backgroundColor: spark.color,
-            pointerEvents: "none",
-            opacity: 1 - spark.life / 40,
-            filter: "blur(2px)",
-            zIndex: 9999,
-          }}
-        />
-      ))}
-
-      {/* Gradient text animation */}
       <style jsx>{`
         .gradient-text {
           background: linear-gradient(90deg, #f87171, #fbbf24, #f97316, #f87171);
@@ -312,9 +389,15 @@ export default function Final() {
         }
 
         @keyframes gradientMove {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
+          0% {
+            background-position: 0% 50%;
+          }
+          50% {
+            background-position: 100% 50%;
+          }
+          100% {
+            background-position: 0% 50%;
+          }
         }
       `}</style>
     </div>
