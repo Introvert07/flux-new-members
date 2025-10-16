@@ -3,7 +3,10 @@ import { motion } from "framer-motion";
 import Confetti from "react-confetti";
 import CanvasConfetti from "react-canvas-confetti";
 import mojs from "@mojs/core";
+<<<<<<< HEAD
 import Lenis from "@studio-freight/lenis";
+=======
+>>>>>>> 0f8d9c8e5bb09b410373ee7a80ad27659d1707a1
 import "@fontsource/orbitron";
 
 export default function Final() {
@@ -23,6 +26,10 @@ export default function Final() {
   const [sparks, setSparks] = useState([]);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
+<<<<<<< HEAD
+=======
+  const title = "WELCOME TO FLUX";
+>>>>>>> 0f8d9c8e5bb09b410373ee7a80ad27659d1707a1
   const subtitle = "Selected Candidates";
 
   const members = [
@@ -70,6 +77,7 @@ export default function Final() {
 
   const fireworkSound = useRef(new Audio("/firework.mp3"));
 
+<<<<<<< HEAD
   // 🌀 Initialize Lenis Smooth Scroll
   useEffect(() => {
     const lenis = new Lenis({
@@ -88,6 +96,8 @@ export default function Final() {
     return () => lenis.destroy();
   }, []);
 
+=======
+>>>>>>> 0f8d9c8e5bb09b410373ee7a80ad27659d1707a1
   // Responsive listener
   useEffect(() => {
     const updateDimensions = () => {
@@ -112,7 +122,11 @@ export default function Final() {
     };
   }, []);
 
+<<<<<<< HEAD
   // Confetti effect
+=======
+  // Confetti
+>>>>>>> 0f8d9c8e5bb09b410373ee7a80ad27659d1707a1
   useEffect(() => {
     const interval = setInterval(() => {
       if (confettiInstance.current) {
@@ -156,7 +170,11 @@ export default function Final() {
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
+<<<<<<< HEAD
   // Spark decay
+=======
+  // Spark life
+>>>>>>> 0f8d9c8e5bb09b410373ee7a80ad27659d1707a1
   useEffect(() => {
     const interval = setInterval(() => {
       setSparks((prev) =>
@@ -198,14 +216,21 @@ export default function Final() {
     }),
   };
 
+<<<<<<< HEAD
   // 🎆 Firework animation (desktop only)
   useEffect(() => {
     if (isMobile) return;
+=======
+  // 🎆 Firework animation (only for desktop)
+  useEffect(() => {
+    if (isMobile) return; // Disable for mobile
+>>>>>>> 0f8d9c8e5bb09b410373ee7a80ad27659d1707a1
 
     const colors = ["#ff0000", "#ffcc00", "#ff8800"];
     const handleClick = (e) => {
       const posX = e.clientX;
       const posY = e.clientY;
+<<<<<<< HEAD
       const marginX = window.innerWidth * 0.2;
       const marginY = window.innerHeight * 0.2;
 
@@ -214,6 +239,16 @@ export default function Final() {
         posX < window.innerWidth - marginX &&
         posY > marginY &&
         posY < window.innerHeight - marginY
+=======
+      const centerMarginX = window.innerWidth * 0.2;
+      const centerMarginY = window.innerHeight * 0.2;
+
+      if (
+        posX > centerMarginX &&
+        posX < window.innerWidth - centerMarginX &&
+        posY > centerMarginY &&
+        posY < window.innerHeight - centerMarginY
+>>>>>>> 0f8d9c8e5bb09b410373ee7a80ad27659d1707a1
       ) {
         new mojs.Burst({
           left: 0,
@@ -317,7 +352,11 @@ export default function Final() {
         </motion.h2>
       </div>
 
+<<<<<<< HEAD
       {/* Members */}
+=======
+      {/* Members Grid */}
+>>>>>>> 0f8d9c8e5bb09b410373ee7a80ad27659d1707a1
       <div className="relative z-10 flex flex-wrap justify-center w-full max-w-6xl gap-4 sm:gap-6 px-4 mt-6">
         {members.map((name, i) => (
           <motion.div
@@ -392,7 +431,12 @@ export default function Final() {
           0% {
             background-position: 0% 50%;
           }
+<<<<<<< HEAD
           50% {
+=======
+          50% {git add .
+
+>>>>>>> 0f8d9c8e5bb09b410373ee7a80ad27659d1707a1
             background-position: 100% 50%;
           }
           100% {
