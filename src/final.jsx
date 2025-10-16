@@ -1,180 +1,311 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
+import Confetti from "react-confetti";
+import CanvasConfetti from "react-canvas-confetti";
 import mojs from "@mojs/core";
+import "@fontsource/orbitron";
 
 export default function Final() {
-  const members = Array.from({ length: 30 }).map((_, i) => `Player ${i + 1}`);
-  const sparkColors = ["#f50707", "#ff4500", "#ffdd00", "#00ffff", "#ff00ff", "#ff99cc"];
-  const [typedText, setTypedText] = useState("");
+  const [dimensions, setDimensions] = useState({
+    width: window.innerWidth,
+    height: Math.max(
+      document.body.scrollHeight,
+      document.documentElement.scrollHeight,
+      window.innerHeight
+    ),
+  });
 
-  const directions = ["left", "bottom", "right"]; // left -> bottom -> right pattern
+  const confettiInstance = useRef(null);
+  const getInstance = (instance) => (confettiInstance.current = instance);
 
-  // Typing effect
+  const [cursor, setCursor] = useState({ x: -100, y: -100 });
+  const [sparks, setSparks] = useState([]);
+
+  const title = "WELCOME TO FLUX";
+  const subtitle = "Selected Candidates";
+  const members = Array.from({ length: 30 }).map((_, i) => `Member ${i + 1}`); // ✅ updated
+
+  const fireworkSound = useRef(new Audio("/firework.mp3"));
+
+  // Window resize
   useEffect(() => {
-    let index = 0;
-    const interval = setInterval(() => {
-      setTypedText("RECRUITMENT DRIVE — 2025".slice(0, index + 1));
-      index++;
-      if (index === 25) clearInterval(interval);
-    }, 100);
-    return () => clearInterval(interval);
+    const handleResize = () => {
+      setDimensions({
+        width: window.innerWidth,
+        height: Math.max(
+          document.body.scrollHeight,
+          document.documentElement.scrollHeight,
+          window.innerHeight
+        ),
+      });
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Continuous bursts
+  // Confetti bursts from top, left, and right
   useEffect(() => {
     const interval = setInterval(() => {
-      const burstsCount = 3;
-      for (let j = 0; j < burstsCount; j++) {
-        const x = Math.random() * window.innerWidth;
-        const y = Math.random() * document.body.scrollHeight;
+      if (confettiInstance.current) {
+        const origins = [
+          { x: Math.random(), y: Math.random() * 0.5 }, // top
+          { x: 0, y: Math.random() * 0.8 },             // left
+          { x: 1, y: Math.random() * 0.8 },             // right
+        ];
 
-        const burst = new mojs.Burst({
-          left: 0,
-          top: 0,
-          x,
-          y,
-          radius: { 0: 60 + Math.random() * 50 },
-          count: 15 + Math.floor(Math.random() * 15),
-          children: {
-            shape: ["circle", "cross", "rect"],
-            fill: sparkColors[Math.floor(Math.random() * sparkColors.length)],
-            radius: 3 + Math.random() * 5,
-            duration: 1100 + Math.random() * 800,
-            easing: "cubic.out",
-          },
+        origins.forEach((origin) => {
+          confettiInstance.current({
+            particleCount: 25,
+            spread: 100,
+            startVelocity: 25,
+            gravity: 0.1,
+            origin,
+            colors: ["#ff0000", "#ffcc00", "#ff8800", "#ff5555", "#ff3300"],
+          });
         });
-        burst.play();
+
+        fireworkSound.current.play();
       }
-    }, 300);
+    }, 2000);
     return () => clearInterval(interval);
   }, []);
 
-  // Sparkle effect on mouse move
+  // Mouse sparkle effect
   useEffect(() => {
     const handleMouseMove = (e) => {
-      const coords = { x: e.pageX, y: e.pageY };
-      const burst = new mojs.Burst({
-        left: 0,
-        top: 0,
-        x: coords.x,
-        y: coords.y,
-        radius: { 0: 30 },
-        count: 8,
-        children: {
-          shape: "circle",
-          fill: sparkColors[Math.floor(Math.random() * sparkColors.length)],
-          radius: 3 + Math.random() * 4,
-          duration: 500,
-          easing: "cubic.out",
-        },
-      });
-      burst.play();
+      setCursor({ x: e.clientX, y: e.clientY });
+      const newSpark = {
+        x: e.clientX + (Math.random() - 0.5) * 40,
+        y: e.clientY + (Math.random() - 0.5) * 40,
+        size: Math.random() * 8 + 4,
+        color: ["#ff0000", "#ffcc00", "#ff8800", "#ff5555", "#ff3300"][
+          Math.floor(Math.random() * 5)
+        ],
+        life: 0,
+      };
+      setSparks((prev) => [...prev, newSpark]);
     };
     window.addEventListener("mousemove", handleMouseMove);
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
-  // Hover effect
-  const handleHover = (e, i) => {
-    const box = document.getElementById(`member-${i}`);
-    if (!box) return;
-    const rect = box.getBoundingClientRect();
-    const x = e.clientX - rect.left;
+  // Spark animation
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setSparks((prev) =>
+        prev
+          .map((spark) => ({ ...spark, y: spark.y - 0.5, life: spark.life + 1 }))
+          .filter((spark) => spark.life < 40)
+      );
+    }, 16);
+    return () => clearInterval(interval);
+  }, []);
 
-    let direction = "bottom";
-    if (x < rect.width * 0.33) direction = "left";
-    else if (x > rect.width * 0.66) direction = "right";
+  const letters = title.split("");
 
-    const fill = document.createElement("div");
-    fill.className = "absolute z-0";
-    fill.style.background = "rgba(255, 0, 0, 0.5)"; // pure red with transparency
-    box.appendChild(fill);
-
-    switch (direction) {
-      case "left":
-        fill.style.top = "0";
-        fill.style.left = "0";
-        fill.style.width = "0%";
-        fill.style.height = "100%";
-        fill.animate([{ width: "0%" }, { width: "100%" }], { duration: 800, fill: "forwards" });
-        break;
-      case "right":
-        fill.style.top = "0";
-        fill.style.right = "0";
-        fill.style.width = "0%";
-        fill.style.height = "100%";
-        fill.animate([{ width: "0%" }, { width: "100%" }], { duration: 800, fill: "forwards" });
-        break;
-      case "bottom":
-      default:
-        fill.style.bottom = "0";
-        fill.style.left = "0";
-        fill.style.width = "100%";
-        fill.style.height = "0%";
-        fill.animate([{ height: "0%" }, { height: "100%" }], { duration: 800, fill: "forwards" });
-        break;
-    }
-
-    setTimeout(() => {
-      box.removeChild(fill);
-    }, 1000);
+  const letterVariants = {
+    hidden: { y: 50, opacity: 0, rotate: -10, scale: 0.8 },
+    visible: (i) => ({
+      y: 0,
+      opacity: 1,
+      rotate: 0,
+      scale: 1,
+      transition: { delay: i * 0.05, type: "spring", stiffness: 500, damping: 20 },
+    }),
   };
 
+  const subtitleVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { opacity: 1, y: 0, transition: { duration: 1 } },
+  };
+
+  const cardVariants = {
+    hidden: { opacity: 0, y: 50 },
+    visible: (i) => ({ opacity: 1, y: 0, transition: { duration: 0.5, delay: i * 0.1 } }),
+  };
+
+  // Fireworks on click
+  useEffect(() => {
+    const colors = ["#ff0000", "#ffcc00", "#ff8800"];
+
+    const handleClick = (e) => {
+      const posX = e.clientX;
+      const posY = e.clientY;
+
+      const centerMarginX = window.innerWidth * 0.2;
+      const centerMarginY = window.innerHeight * 0.2;
+
+      if (
+        posX > centerMarginX &&
+        posX < window.innerWidth - centerMarginX &&
+        posY > centerMarginY &&
+        posY < window.innerHeight - centerMarginY
+      ) {
+        new mojs.Burst({
+          left: 0,
+          top: 0,
+          x: posX,
+          y: posY,
+          radius: { 0: 180 },
+          count: 16,
+          children: {
+            shape: "circle",
+            radius: 12,
+            fill: colors,
+            strokeWidth: 2,
+            duration: 2200,
+            easing: "cubic.out",
+            swirlSize: 12,
+          },
+        }).play();
+
+        new mojs.Burst({
+          left: 0,
+          top: 0,
+          x: posX,
+          y: posY,
+          radius: { 0: 150 },
+          count: 12,
+          children: {
+            shape: "line",
+            stroke: colors,
+            strokeWidth: 4,
+            duration: 1800,
+            easing: "cubic.out",
+            angle: { 0: 180 },
+            swirlSize: 10,
+          },
+        }).play();
+
+        fireworkSound.current.play();
+      }
+    };
+
+    window.addEventListener("click", handleClick);
+    return () => window.removeEventListener("click", handleClick);
+  }, []);
+
   return (
-    <div className="relative w-full min-h-screen flex flex-col items-center justify-start font-['Press_Start_2P'] pt-20 bg-black text-red-400 overflow-x-hidden">
-      <motion.h1
-        initial={{ opacity: 0, y: -80, scale: 0.8 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 1, ease: "easeOut" }}
-        className="text-4xl sm:text-5xl md:text-6xl text-center mb-14 text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-orange-400 to-yellow-400 drop-shadow-[0_0_25px_#ff0000]"
-      >
-        WELCOME TO FLUX
-        <div className="text-base sm:text-lg md:text-xl mt-3 text-red-300 h-6">
-          {typedText}<span className="blinking-cursor">|</span>
-        </div>
-      </motion.h1>
+    <div className="relative w-full min-h-screen flex flex-col items-center pt-16 bg-black text-red-400 overflow-hidden font-['Orbitron'] cursor-none">
+      {/* Confetti */}
+      <Confetti
+        width={dimensions.width}
+        height={dimensions.height}
+        numberOfPieces={250}
+        gravity={0.15}
+        recycle={true}
+        run={true}
+        colors={["#ff0000", "#ffcc00", "#ff8800", "#ff5555", "#ff3300"]}
+        style={{ position: "absolute", top: 0, left: 0, zIndex: 0 }}
+      />
 
-      <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-6xl px-4 mb-8">
-        {members.map((name, i) => {
-          const dir = directions[i % directions.length];
-          const initial = {
-            opacity: 0,
-            x: dir === "left" ? -100 : dir === "right" ? 100 : 0,
-            y: dir === "bottom" ? 100 : 0,
-          };
-          const animate = { opacity: 1, x: 0, y: 0, transition: { duration: 1, ease: "easeOut" } };
+      <CanvasConfetti
+        ref={getInstance}
+        style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 0 }}
+      />
 
-          return (
-            <motion.div
-              id={`member-${i}`}
+      {/* Title & Subtitle */}
+      <div className="relative z-10 w-full py-8 flex flex-col items-center">
+        <h1 className="text-center text-5xl sm:text-6xl md:text-7xl mb-6 px-4 drop-shadow-[0_0_55px_#ff0000] flex flex-wrap justify-center gap-2">
+          {letters.map((letter, i) => (
+            <motion.span
               key={i}
-              initial={initial}
-              whileInView={animate}
-              viewport={{ once: true, amount: 0.2 }}
-              onMouseEnter={(e) => handleHover(e, i)}
-              className="relative text-center py-6 px-4 border border-red-500 bg-black/0 rounded-lg backdrop-blur-md shadow-lg cursor-pointer overflow-hidden"
+              custom={i}
+              variants={letterVariants}
+              initial="hidden"
+              animate="visible"
+              className="gradient-text inline-block"
             >
-              <motion.div
-                className="relative z-10"
-                animate={{ y: [0, -4, 0] }}
-                transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
-              >
-                <div className="text-sm sm:text-base tracking-tight text-red-100">{name}</div>
-                <div className="text-[10px] mt-1 text-red-200"># {i + 1}</div>
-              </motion.div>
-            </motion.div>
-          );
-        })}
+              {letter === " " ? "\u00A0" : letter}
+            </motion.span>
+          ))}
+        </h1>
+
+        <motion.h2
+          className="text-center text-lg md:text-2xl drop-shadow-[0_0_20px_#ff0000] gradient-text"
+          variants={subtitleVariants}
+          initial="hidden"
+          animate="visible"
+          transition={{ delay: letters.length * 0.05 + 0.2 }}
+        >
+          {subtitle}
+        </motion.h2>
       </div>
 
-      <footer className="text-[10px] text-red-500/70 font-mono z-10 text-center pb-4">
-        🎆 Developed by <span className="text-red-400">Introvert</span> 
+      {/* Members Grid */}
+      <div className="relative z-10 flex flex-wrap justify-center w-full max-w-6xl gap-6 px-4 mt-6">
+        {members.map((name, i) => (
+          <motion.div
+            key={i}
+            custom={i}
+            initial="hidden"
+            animate="visible"
+            variants={cardVariants}
+            whileHover={{ scale: 1.1, boxShadow: "0 0 25px #ff5555" }}
+            className="px-4 py-2 w-44 sm:w-48 bg-black/40 border border-red-500 rounded-lg backdrop-blur-md shadow-[0_0_25px_rgba(255,0,0,0.6)] text-center transition-all duration-300"
+          >
+            <div className="text-sm md:text-base font-bold text-red-100">{name}</div>
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Footer */}
+      <footer className="relative z-10 text-[9px] md:text-xs text-red-500/70 font-mono text-center pb-4 px-2 mt-12">
+        🎆 Developed by <span className="text-red-400">Introvert</span>
       </footer>
 
-      <style>{`
-        html, body { margin: 0; padding: 0; overflow-x: hidden; }
-        .blinking-cursor { display:inline-block; width:1ch; animation: blink 1s steps(2, start) infinite; }
-        @keyframes blink { 0%, 100% {opacity:1;} 50% {opacity:0;} }
+      {/* Custom Cursor */}
+      <div
+        style={{
+          position: "fixed",
+          top: cursor.y,
+          left: cursor.x,
+          width: 40,
+          height: 40,
+          borderRadius: "50%",
+          background: "radial-gradient(circle, #ff0000, #ff8800)",
+          pointerEvents: "none",
+          transform: "translate(-50%, -50%)",
+          zIndex: 9999,
+          boxShadow: "0 0 25px #ff5555, 0 0 35px #ff8800",
+        }}
+      />
+
+      {/* Cursor Sparks */}
+      {sparks.map((spark, index) => (
+        <div
+          key={index}
+          style={{
+            position: "fixed",
+            top: spark.y,
+            left: spark.x,
+            width: spark.size * 2,
+            height: spark.size * 2,
+            borderRadius: "50%",
+            backgroundColor: spark.color,
+            pointerEvents: "none",
+            opacity: 1 - spark.life / 40,
+            filter: "blur(2px)",
+            zIndex: 9999,
+          }}
+        />
+      ))}
+
+      {/* Gradient text animation */}
+      <style jsx>{`
+        .gradient-text {
+          background: linear-gradient(90deg, #f87171, #fbbf24, #f97316, #f87171);
+          background-size: 200% 200%;
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          animation: gradientMove 5s linear infinite;
+        }
+
+        @keyframes gradientMove {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
       `}</style>
     </div>
   );

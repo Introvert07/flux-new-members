@@ -1,11 +1,17 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Final from "./final";
-import "@fontsource/press-start-2p";
+import TerminalLoading from "./TerminalLoading";
 
 function App() {
+  const [showFinal, setShowFinal] = useState(false);
+
   return (
     <div className="App">
-      <Final />
+      {!showFinal ? (
+        <TerminalLoading onFinish={() => setShowFinal(true)} />
+      ) : (
+        <Final />
+      )}
     </div>
   );
 }
