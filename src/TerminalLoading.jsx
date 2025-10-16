@@ -16,7 +16,7 @@ export default function TerminalLoading({ onFinish }) {
   const [charIndex, setCharIndex] = useState(0);
   const [currentText, setCurrentText] = useState("");
 
-  // Auto-type effect for each message
+  // Auto-type effect
   useEffect(() => {
     if (currentMessageIndex >= messages.length) {
       if (onFinish) onFinish();
@@ -39,25 +39,26 @@ export default function TerminalLoading({ onFinish }) {
   }, [charIndex, currentMessageIndex]);
 
   return (
-    <div className="w-full min-h-screen bg-black flex flex-col items-center p-6 relative overflow-hidden">
-      {/* Fixed arcade title */}
-      <h1 className="fixed top-16 left-1/2 transform -translate-x-1/2 z-20 text-4xl md:text-5xl text-red-500 font-['Press_Start_2P'] text-center">
-        FLUX TERMINAL
-      </h1>
+    <div className="w-full min-h-screen bg-black flex flex-col items-center p-4 sm:p-6 relative overflow-hidden">
+      
+      {/* Responsive arcade title */}
+      <div className="fixed top-16 left-1/2 transform -translate-x-1/2 z-20 text-center">
+        
+        <h1 className="text-[10vw] sm:text-5xl md:text-6xl text-red-500 font-['Press_Start_2P'] leading-tight">
+          FLUX TERMINAL
+        </h1>
+      </div>
 
       {/* Typed messages container */}
-      <div className="mt-48 flex flex-col items-center space-y-4 z-10 text-center max-w-3xl">
+      <div className="mt-[40vh] sm:mt-[35vh] flex flex-col items-center space-y-3 sm:space-y-4 z-10 text-center max-w-[90%] sm:max-w-3xl px-2">
         {typedMessages.map((msg, idx) => (
-          <p
-            key={idx}
-            className="text-white font-['Press_Start_2P'] text-lg md:text-xl"
-          >
+          <p key={idx} className="text-white font-['Press_Start_2P'] text-[3vw] sm:text-lg md:text-xl">
             {msg}
           </p>
         ))}
 
         {currentMessageIndex < messages.length && (
-          <p className="text-red-400 font-['Press_Start_2P'] text-lg md:text-xl">
+          <p className="text-red-400 font-['Press_Start_2P'] text-[3vw] sm:text-lg md:text-xl break-words">
             {currentText}
             <span className="blinking-cursor">█</span>
           </p>

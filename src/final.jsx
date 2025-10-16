@@ -23,13 +23,13 @@ export default function Final() {
 
   const title = "WELCOME TO FLUX";
   const subtitle = "Selected Candidates";
-  const members = Array.from({ length: 30 }).map((_, i) => `Member ${i + 1}`); // ✅ updated
+  const members = Array.from({ length: 30 }).map((_, i) => `Member ${i + 1}`);
 
   const fireworkSound = useRef(new Audio("/firework.mp3"));
 
-  // Window resize
+  // Update dimensions on resize and scroll
   useEffect(() => {
-    const handleResize = () => {
+    const updateDimensions = () => {
       setDimensions({
         width: window.innerWidth,
         height: Math.max(
@@ -39,8 +39,15 @@ export default function Final() {
         ),
       });
     };
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+
+    window.addEventListener("resize", updateDimensions);
+    window.addEventListener("scroll", updateDimensions); // <- Added scroll listener
+    updateDimensions();
+
+    return () => {
+      window.removeEventListener("resize", updateDimensions);
+      window.removeEventListener("scroll", updateDimensions);
+    };
   }, []);
 
   // Confetti bursts from top, left, and right
@@ -78,9 +85,7 @@ export default function Final() {
         x: e.clientX + (Math.random() - 0.5) * 40,
         y: e.clientY + (Math.random() - 0.5) * 40,
         size: Math.random() * 8 + 4,
-        color: ["#ff0000", "#ffcc00", "#ff8800", "#ff5555", "#ff3300"][
-          Math.floor(Math.random() * 5)
-        ],
+        color: ["#ff0000", "#ffcc00", "#ff8800", "#ff5555", "#ff3300"][Math.floor(Math.random() * 5)],
         life: 0,
       };
       setSparks((prev) => [...prev, newSpark]);
@@ -206,27 +211,32 @@ export default function Final() {
 
       {/* Title & Subtitle */}
       <div className="relative z-10 w-full py-8 flex flex-col items-center">
-        <h1 className="text-center text-5xl sm:text-6xl md:text-7xl mb-6 px-4 drop-shadow-[0_0_55px_#ff0000] flex flex-wrap justify-center gap-2">
-          {letters.map((letter, i) => (
-            <motion.span
-              key={i}
-              custom={i}
-              variants={letterVariants}
-              initial="hidden"
-              animate="visible"
-              className="gradient-text inline-block"
-            >
-              {letter === " " ? "\u00A0" : letter}
-            </motion.span>
-          ))}
+        <h1 className="text-center mb-6 px-4 drop-shadow-[0_0_55px_#ff0000] flex flex-col items-center">
+          <motion.span
+            variants={letterVariants}
+            initial="hidden"
+            animate="visible"
+            className="gradient-text block text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold"
+          >
+            WELCOME TO
+          </motion.span>
+
+          <motion.span
+            variants={letterVariants}
+            initial="hidden"
+            animate="visible"
+            className="gradient-text block text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold mt-2"
+          >
+            FLUX
+          </motion.span>
         </h1>
 
         <motion.h2
-          className="text-center text-lg md:text-2xl drop-shadow-[0_0_20px_#ff0000] gradient-text"
+          className="text-center text-lg sm:text-xl md:text-2xl lg:text-3xl drop-shadow-[0_0_20px_#ff0000] gradient-text"
           variants={subtitleVariants}
           initial="hidden"
           animate="visible"
-          transition={{ delay: letters.length * 0.05 + 0.2 }}
+          transition={{ delay: 0.3 }}
         >
           {subtitle}
         </motion.h2>
