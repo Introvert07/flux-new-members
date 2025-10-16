@@ -28,9 +28,8 @@ export default function TerminalLoading({ onFinish }) {
       if (charIndex < messages[currentMessageIndex].length - 1) {
         setCharIndex(charIndex + 1);
       } else {
-        // Finish current message
         setTypedMessages((prev) => [...prev, messages[currentMessageIndex]]);
-        setCurrentText(""); // Reset for next message
+        setCurrentText("");
         setCharIndex(0);
         setCurrentMessageIndex(currentMessageIndex + 1);
       }
@@ -42,7 +41,7 @@ export default function TerminalLoading({ onFinish }) {
   return (
     <div className="w-full min-h-screen bg-black flex flex-col items-center p-6 relative overflow-hidden">
       {/* Fixed arcade title */}
-      <h1 className="fixed top-16 left-1/2 transform -translate-x-1/2 z-20 text-4xl md:text-5xl text-red-500 font-['Press_Start_2P'] drop-shadow-[0_0_15px_red] text-center">
+      <h1 className="fixed top-16 left-1/2 transform -translate-x-1/2 z-20 text-4xl md:text-5xl text-red-500 font-['Press_Start_2P'] text-center">
         FLUX TERMINAL
       </h1>
 
@@ -51,15 +50,14 @@ export default function TerminalLoading({ onFinish }) {
         {typedMessages.map((msg, idx) => (
           <p
             key={idx}
-            className="text-white font-['Press_Start_2P'] text-lg md:text-xl drop-shadow-[0_0_10px_red]"
+            className="text-white font-['Press_Start_2P'] text-lg md:text-xl"
           >
             {msg}
           </p>
         ))}
 
-        {/* Current typing message */}
         {currentMessageIndex < messages.length && (
-          <p className="text-red-400 font-['Press_Start_2P'] text-lg md:text-xl drop-shadow-[0_0_10px_red]">
+          <p className="text-red-400 font-['Press_Start_2P'] text-lg md:text-xl">
             {currentText}
             <span className="blinking-cursor">█</span>
           </p>
